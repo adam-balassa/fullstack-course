@@ -72,16 +72,19 @@ const App = () => {
     const newPerson = persons.find(person => person.name === newName )
     if (newPerson) {
       if (window.confirm(`${newName} is already added to phonebook, replace number with new one?`)) {
-        personsService.update({...newPerson,  number: newNumber})
-        .then(result => setPersons(persons.map(person => person.id !== newPerson.id ? person : result)))
-        .then(() => showNotification(`${newName}'s phone number is successfully updated`))
-        .catch(() => showNotification(`${newName}'s data has been removed from the server`, true))
+        personsService
+          .update({...newPerson,  number: newNumber})
+          .then(result => setPersons(persons.map(person => person.id !== newPerson.id ? person : result)))
+          .then(() => showNotification(`${newName}'s phone number is successfully updated`))
+          .catch(({response: { data: {error} }}) => showNotification(error, true))
       }
       return
     }
-    personsService.create({name: newName, number: newNumber})
-    .then(newPerson => setPersons([...persons, newPerson]))
-    .then(() => showNotification(`${newName} successfully added`))
+    personsService
+      .create({name: newName, number: newNumber})
+      .then(newPerson => setPersons([...persons, newPerson]))
+      .then(() => showNotification(`${newName} successfully added`))
+      .catch(({response: { data: {error} }}) => showNotification(error, true))
   }
 
   const onDeletePerson = person => {
