@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import Login from './components/Login'
 import Logout from './components/Logout'
 import CreateBlog from './components/CreateBlog'
+import Togglable from './components/Togglable'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import userService from './services/user'
@@ -10,9 +11,13 @@ import loginService from './services/login'
 
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  const [blogs, setBlogsState] = useState([])
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({})
+
+  const setBlogs = blogs => {
+    setBlogsState(blogs.sort((a, b) => b.likes - a.likes))
+  }
 
   const showNotification = (message, error) => {
     setNotification({message, error})
@@ -56,6 +61,16 @@ const App = () => {
     setBlogs([...blogs, blog])
   }
 
+  const likeBlog = async blog => {
+    const newBlog = await withNotification(() => blogService.likeBlog(blog.id, blog.likes + 1), `You liked "${blog.title}"`)
+    setBlogs(blogs.map(b => b.id === blog.id ? newBlog : b))
+  }
+
+  const deleteBlog = async blog => {
+    await withNotification(() => blogService.deleteBlog(blog.id), `You deleted "${blog.title}"`)
+    setBlogs(blogs.filter(b => b.id !== blog.id))
+  }
+
   useEffect(() => {
     const loggedInUser = userService.getUser()
     loggedInUser && userLoggedIn(loggedInUser)
@@ -68,10 +83,12 @@ const App = () => {
         <h1>Blogs</h1>
         <Logout user={user} onLogout={logOut}/>
         <hr/>
-        <CreateBlog onCreateBlog={createBlog}/>      
+        <Togglable buttonLabel="Create a blog">
+          <CreateBlog onCreateBlog={createBlog}/>     
+        </Togglable> 
         <hr/>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog key={blog.id} blog={blog} user={user} onLike={likeBlog} onDelete={deleteBlog}/>
         )}
       </div>
     ) : <Login onLogin={login} />}
