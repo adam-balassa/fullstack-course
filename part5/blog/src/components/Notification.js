@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Notification = ({notification: {message, error=false}}) => {
+const Notification = ({ notification: { message, error=false } }) => {
   if (!message)
     return <></>
   return <div style={{

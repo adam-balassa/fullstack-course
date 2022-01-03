@@ -21,12 +21,13 @@ router.delete('/:id', authenticated, async (request, response) => {
   if (!blog)
     return response.status(401).json({ error: 'unauthorized operation' })
   await Blog.findByIdAndRemove(request.params.id)
-  response.send(204)
+  response.sendStatus(204)
 })
 
 router.patch('/:id', async (request, response) => {
   const { likes } = request.body
   const result = await Blog.findByIdAndUpdate(request.params.id, { likes }, { new: true, runValidators: false })
+    .populate('user')
   if (!result) throw { name: 'NotFoundError' }
   response.json(result)
 })

@@ -20,7 +20,7 @@ const App = () => {
   }
 
   const showNotification = (message, error) => {
-    setNotification({message, error})
+    setNotification({ message, error })
     setTimeout(() => {
       setNotification({})
     }, error ? 2500 : 1500)
@@ -32,7 +32,9 @@ const App = () => {
       showNotification(success, false)
       return res
     } catch (e) {
+      console.log(e.response)
       showNotification(e.response.data.error || e.message || 'An error occured', true)
+      throw e
     }
   }
 
@@ -44,21 +46,25 @@ const App = () => {
   }
 
   const login = async (userName, password) => {
-    const user = await withNotification(() => loginService.login({ userName, password }), 'Login successful')
-    if (user && user.token) {
-      userService.saveUser(user);
-      userLoggedIn(user);
+    try {
+      const user = await withNotification(() => loginService.login({ userName, password }), 'Login successful')
+      if (user && user.token) {
+        userService.saveUser(user)
+        userLoggedIn(user)
+      }
+    } catch (err) {
+      console.log(err)
     }
   }
 
   const logOut = async () => {
     await withNotification(() => userService.logOut(), 'Logout successful')
-    setUser(null);
+    setUser(null)
   }
 
   const createBlog = async blog => {
-    await withNotification(() => blogService.createBlog(blog), `A new blog "${blog.title}" is successfully created`)
-    setBlogs([...blogs, blog])
+    const newBlog = await withNotification(() => blogService.createBlog(blog), `A new blog "${blog.title}" is successfully created`)
+    setBlogs([...blogs, newBlog])
   }
 
   const likeBlog = async blog => {
@@ -79,17 +85,19 @@ const App = () => {
   return <>
     <Notification notification={notification}/>
     { user ? (
-      <div> 
+      <div>
         <h1>Blogs</h1>
         <Logout user={user} onLogout={logOut}/>
         <hr/>
         <Togglable buttonLabel="Create a blog">
-          <CreateBlog onCreateBlog={createBlog}/>     
-        </Togglable> 
+          <CreateBlog onCreateBlog={createBlog}/>
+        </Togglable>
         <hr/>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} user={user} onLike={likeBlog} onDelete={deleteBlog}/>
-        )}
+        <div className="blogs">
+          {blogs.map(blog =>
+            <Blog key={blog.id} blog={blog} user={user} onLike={likeBlog} onDelete={deleteBlog}/>
+          )}
+        </div>
       </div>
     ) : <Login onLogin={login} />}
   </>
