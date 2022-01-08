@@ -17,7 +17,7 @@ router.post('/', authenticated, async ({ body, user }, response) => {
 })
 
 router.delete('/:id', authenticated, async (request, response) => {
-  const blog = Blog.findOne({ id: request.params.id, user: request.user.id })
+  const blog = await Blog.findOne({ id: request.params.id, user: request.user.id })
   if (!blog)
     return response.status(401).json({ error: 'unauthorized operation' })
   await Blog.findByIdAndRemove(request.params.id)
@@ -27,6 +27,14 @@ router.delete('/:id', authenticated, async (request, response) => {
 router.patch('/:id', async (request, response) => {
   const { likes } = request.body
   const result = await Blog.findByIdAndUpdate(request.params.id, { likes }, { new: true, runValidators: false })
+    .populate('user')
+  if (!result) throw { name: 'NotFoundError' }
+  response.json(result)
+})
+
+router.post('/:id/comments', async (request, response) => {
+  const { comment } = request.body
+  const result = await Blog.findByIdAndUpdate(request.params.id, { $push: { comments: comment } }, { new: true, runValidators: false })
     .populate('user')
   if (!result) throw { name: 'NotFoundError' }
   response.json(result)

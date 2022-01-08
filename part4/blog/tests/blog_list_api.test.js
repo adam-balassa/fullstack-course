@@ -32,13 +32,15 @@ describe('list blogs', () => {
     })
   })
 
-  test('all users are populated into blogs', async () => {
+  test('all users and comments are populated into blogs', async () => {
     const response = await api.get('/api/blogs')
 
     const { userName, name } = helper.initialUsers[0]
     response.body.forEach(blog => {
       expect(blog.user).toBeDefined()
       expect(blog.user).toMatchObject({ userName, name })
+      expect(blog.comments).toBeDefined()
+      expect(blog.comments).toHaveLength(2)
     })
   })
 })
@@ -85,7 +87,8 @@ describe('post a blog', () => {
       author: 'new author',
       url: 'http://test.com/new',
       likes: 10,
-      user: { userName, name }
+      user: { userName, name },
+      comments: []
     })
   })
 
@@ -198,6 +201,36 @@ describe('update blog likes', () => {
   })
 })
 
+describe('comment on a blog', () => {
+  test('comment is added to comments', async () => {
+    const blogId = await helper.blogId()
+    await api
+      .post(`/api/blogs/${blogId}/comments`)
+      .send({ comment: 'New comment' })
+
+    const blogsInDb = await helper.blogsInDb()
+    expect(blogsInDb.map(blog => blog.toJSON())).toContainEqual(expect.objectContaining({ id: blogId, comments: expect.arrayContaining(['New comment']) }))
+  })
+
+  test('updated blog is returned', async () => {
+    const blogId = await helper.blogId()
+    const response = await api
+      .post(`/api/blogs/${blogId}/comments`)
+      .send({ comment: 'New comment' })
+
+    expect(response.body).toMatchObject({ id: blogId, comments: expect.arrayContaining(['New comment']) })
+  })
+
+  test('returns 404 for invalid blog id', async () => {
+    const blogId = await helper.blogId()
+    await api.delete(`/api/blogs/${blogId}`).set({ Authorization: await helper.tokenForAuthorizedUser() })
+
+    await api
+      .post(`/api/blogs/${blogId}/comments`)
+      .send({ comment: 'New comment' })
+      .expect(404)
+  })
+})
 
 afterAll(async () => {
   await helper.emptyDB()

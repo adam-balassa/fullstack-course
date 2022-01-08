@@ -22,13 +22,21 @@ const initialBlogs = [
     title: 'test title',
     author: 'test author',
     url: 'http://test.com',
-    likes: 4
+    likes: 4,
+    comments: [
+      'test comment 1',
+      'test comment 2',
+    ]
   },
   {
     title: 'test title 2',
     author: 'test author 2',
     url: 'http://test.com/2',
-    likes: 2
+    likes: 2,
+    comments: [
+      'test comment 3',
+      'test comment 4',
+    ]
   }
 ]
 

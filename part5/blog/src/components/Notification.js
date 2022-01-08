@@ -1,19 +1,27 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { Message } from 'semantic-ui-react'
 
-const Notification = ({ notification: { message, error=false } }) => {
-  if (!message)
-    return <></>
-  return <div style={{
-    backgroundColor: error ? 'red' : 'green',
-    color: 'white',
-    padding: '1rem',
-    boxShadow: '#2227 2px 2px 5px',
-    margin: '1rem',
-    borderRadius: '5px',
-    textAlign: 'center'
-  }}>
-    <span>{message}</span>
+const Notification = () => {
+  const { message, error } = useSelector(({ notification }) => notification)
+
+  return message && <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+      zIndex: 10
+    }}>
+    <Message
+      style={{ textAlign: 'center', width: '100%', margin: '1rem 10%' }}
+      negative={error}
+      success={!error}>
+      <Message.Header>{message}</Message.Header>
+    </Message>
   </div>
+ || ''
 }
 
 export default Notification

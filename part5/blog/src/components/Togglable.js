@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
+import { Button, Container } from 'semantic-ui-react'
 
 const Togglable = ({ buttonLabel, children }) => {
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(true)
 
   const toggleVisibility = () => {
     setVisible(!visible)
@@ -9,11 +10,11 @@ const Togglable = ({ buttonLabel, children }) => {
 
   return (
     <div>
-      { visible ? (
-        <button onClick={toggleVisibility}>{buttonLabel}</button>
+      { visible ? (<Container textAlign='center'>
+        <Button onClick={toggleVisibility} style={{ margin: '2rem' }}>{buttonLabel}</Button>
+      </Container>
       ) : (<>
-        {children}
-        <button onClick={toggleVisibility}>Cancel</button>
+        { React.cloneElement(children, { toggleVisibility }) }
       </>)
       }
     </div>
