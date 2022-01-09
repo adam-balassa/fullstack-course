@@ -22,7 +22,7 @@ export const createBlog = blog => {
       const data = await service.create(blog)
       dispatch({ type: 'CREATE_BLOG', data })
       dispatch(notify(`You created ${data.title}`))
-      dispatch(addBlogToUser(data.user.id, blog))
+      dispatch(addBlogToUser(data.user.id, data))
     } catch (e) {
       dispatch(notify(e.response && e.response.data.error || e.message || 'An error occured', true, 4))
     }
