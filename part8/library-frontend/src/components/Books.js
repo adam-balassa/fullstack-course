@@ -42,7 +42,7 @@ const Books = (props) => {
           )}
         </tbody>
       </table>
-      <FilterBooks books={books} setFilter={setFilter}/>
+      <FilterBooks setFilter={setFilter}/>
     </div>
   )
 }

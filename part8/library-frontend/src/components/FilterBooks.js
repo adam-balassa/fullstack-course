@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
-const FilterBooks = ({ books, setFilter }) => {
+const FilterBooks = ({ setFilter }) => {
   const genres = ['refactoring', 'agile', 'patterns', 'design']
 
   return <div>
